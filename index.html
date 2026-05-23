@@ -1,1 +1,195 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+
+    <title>Hostel Complaint System</title>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background: #f2f2f2;
+            padding: 20px;
+        }
+
+        .box{
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 400px;
+            margin: auto;
+        }
+
+        input, textarea, select{
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        button{
+            margin-top: 15px;
+            padding: 10px;
+            width: 100%;
+            background: blue;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        table{
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td{
+            border: 1px solid black;
+            padding: 10px;
+            text-align: center;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+    <h2>Hostel Complaint System</h2>
+
+    <input type="text" id="title" placeholder="Complaint Title">
+
+    <textarea id="description" placeholder="Description"></textarea>
+
+    <input type="text" id="location" placeholder="Location / Room Number">
+
+    <select id="category">
+
+        <option>Food</option>
+        <option>Electrical</option>
+        <option>Plumbing</option>
+        <option>Cleaning</option>
+
+    </select>
+
+    <select id="urgency">
+
+        <option>Yes</option>
+        <option>No</option>
+
+    </select>
+
+    <button onclick="submitComplaint()">
+        Submit Complaint
+    </button>
+
+</div>
+
+<h2>Complaints List</h2>
+
+<table>
+
+<tr>
+
+    <th>Title</th>
+    <th>Category</th>
+    <th>Location</th>
+    <th>Urgency</th>
+    <th>Status</th>
+
+</tr>
+
+<tbody id="tableBody">
+
+</tbody>
+
+</table>
+
+<script>
+
+    let complaints = [];
+
+    function submitComplaint(){
+
+        let title =
+            document.getElementById("title").value;
+
+        let description =
+            document.getElementById("description").value;
+
+        let location =
+            document.getElementById("location").value;
+
+        let category =
+            document.getElementById("category").value;
+
+        let urgency =
+            document.getElementById("urgency").value;
+
+        // DUPLICATE DETECTION
+
+        for(let c of complaints){
+
+            if(
+                c.title.toLowerCase() === title.toLowerCase()
+                &&
+                c.location.toLowerCase() === location.toLowerCase()
+            ){
+
+                alert("Complaint already exists");
+                return;
+            }
+        }
+
+        let complaint = {
+
+            title: title,
+            description: description,
+            location: location,
+            category: category,
+            urgency: urgency,
+            status: "Pending"
+
+        };
+
+        complaints.push(complaint);
+
+        displayComplaints();
+
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("location").value = "";
+
+    }
+
+    function displayComplaints(){
+
+        let table =
+            document.getElementById("tableBody");
+
+        table.innerHTML = "";
+
+        for(let c of complaints){
+
+            table.innerHTML += `
+
+            <tr>
+
+                <td>${c.title}</td>
+                <td>${c.category}</td>
+                <td>${c.location}</td>
+                <td>${c.urgency}</td>
+                <td>${c.status}</td>
+
+            </tr>
+
+            `;
+        }
+    }
+
+</script>
+
+</body>
+</html>
