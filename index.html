@@ -10,43 +10,66 @@
         body{
             font-family: Arial;
             background: #f2f2f2;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
         }
 
-        .box{
+        .container{
+            width: 90%;
+            max-width: 500px;
+            margin: auto;
+            margin-top: 40px;
             background: white;
             padding: 20px;
             border-radius: 10px;
-            width: 400px;
-            margin: auto;
+            box-shadow: 0px 0px 10px gray;
+        }
+
+        h1, h2{
+            text-align: center;
         }
 
         input, textarea, select{
+
             width: 100%;
             padding: 10px;
             margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid gray;
+
         }
 
         button{
-            margin-top: 15px;
-            padding: 10px;
+
             width: 100%;
+            padding: 10px;
+            margin-top: 15px;
             background: blue;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
+
         }
 
         table{
+
             width: 100%;
             margin-top: 20px;
             border-collapse: collapse;
+
         }
 
         th, td{
+
             border: 1px solid black;
             padding: 10px;
             text-align: center;
+
+        }
+
+        .hidden{
+            display: none;
         }
 
     </style>
@@ -55,15 +78,56 @@
 
 <body>
 
-<div class="box">
+<!-- LOGIN PAGE -->
 
-    <h2>Hostel Complaint System</h2>
+<div class="container" id="loginPage">
 
-    <input type="text" id="title" placeholder="Complaint Title">
+    <h1>Hostel Complaint System</h1>
 
-    <textarea id="description" placeholder="Description"></textarea>
+    <p style="text-align:center;">
 
-    <input type="text" id="location" placeholder="Location / Room Number">
+        Welcome Student 👋 <br>
+        We are here to resolve your hostel problems quickly.
+
+    </p>
+
+    <input
+        type="text"
+        id="studentName"
+        placeholder="Enter Your Name"
+    >
+
+    <button onclick="startSystem()">
+        Enter System
+    </button>
+
+</div>
+
+
+<!-- MAIN PAGE -->
+
+<div class="container hidden" id="mainPage">
+
+    <h2 id="welcomeText"></h2>
+
+    <h3>Submit Complaint</h3>
+
+    <input
+        type="text"
+        id="title"
+        placeholder="Complaint Title"
+    >
+
+    <textarea
+        id="description"
+        placeholder="Description"
+    ></textarea>
+
+    <input
+        type="text"
+        id="location"
+        placeholder="Room Number / Location"
+    >
 
     <select id="category">
 
@@ -71,6 +135,7 @@
         <option>Electrical</option>
         <option>Plumbing</option>
         <option>Cleaning</option>
+        <option>Internet</option>
 
     </select>
 
@@ -85,31 +150,113 @@
         Submit Complaint
     </button>
 
+    <button onclick="logout()">
+        Logout
+    </button>
+
 </div>
 
-<h2>Complaints List</h2>
 
-<table>
+<!-- COMPLAINT TABLE -->
 
-<tr>
+<div class="container hidden" id="tableContainer">
 
-    <th>Title</th>
-    <th>Category</th>
-    <th>Location</th>
-    <th>Urgency</th>
-    <th>Status</th>
+    <h2>My Complaints</h2>
 
-</tr>
+    <table>
 
-<tbody id="tableBody">
+        <tr>
 
-</tbody>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Location</th>
+            <th>Urgency</th>
+            <th>Status</th>
+            <th>Action</th>
 
-</table>
+        </tr>
+
+        <tbody id="tableBody"></tbody>
+
+    </table>
+
+</div>
+
 
 <script>
 
-    let complaints = [];
+    let complaints =
+        JSON.parse(localStorage.getItem("complaints")) || [];
+
+
+    function startSystem(){
+
+        let name =
+            document.getElementById("studentName").value;
+
+        if(name == ""){
+
+            alert("Please enter your name");
+            return;
+
+        }
+
+        localStorage.setItem("studentName", name);
+
+        document
+            .getElementById("loginPage")
+            .classList.add("hidden");
+
+        document
+            .getElementById("mainPage")
+            .classList.remove("hidden");
+
+        document
+            .getElementById("tableContainer")
+            .classList.remove("hidden");
+
+        document
+            .getElementById("welcomeText")
+            .innerHTML =
+            "Welcome " + name + " 👋";
+
+        displayComplaints();
+
+    }
+
+
+    // AUTO LOGIN
+
+    window.onload = function(){
+
+        let savedName =
+            localStorage.getItem("studentName");
+
+        if(savedName){
+
+            document
+                .getElementById("loginPage")
+                .classList.add("hidden");
+
+            document
+                .getElementById("mainPage")
+                .classList.remove("hidden");
+
+            document
+                .getElementById("tableContainer")
+                .classList.remove("hidden");
+
+            document
+                .getElementById("welcomeText")
+                .innerHTML =
+                "Welcome " + savedName + " 👋";
+
+            displayComplaints();
+
+        }
+
+    }
+
 
     function submitComplaint(){
 
@@ -128,6 +275,7 @@
         let urgency =
             document.getElementById("urgency").value;
 
+
         // DUPLICATE DETECTION
 
         for(let c of complaints){
@@ -140,8 +288,11 @@
 
                 alert("Complaint already exists");
                 return;
+
             }
+
         }
+
 
         let complaint = {
 
@@ -154,15 +305,25 @@
 
         };
 
+
         complaints.push(complaint);
 
+
+        localStorage.setItem(
+            "complaints",
+            JSON.stringify(complaints)
+        );
+
+
         displayComplaints();
+
 
         document.getElementById("title").value = "";
         document.getElementById("description").value = "";
         document.getElementById("location").value = "";
 
     }
+
 
     function displayComplaints(){
 
@@ -171,7 +332,8 @@
 
         table.innerHTML = "";
 
-        for(let c of complaints){
+
+        complaints.forEach((c, index) => {
 
             table.innerHTML += `
 
@@ -183,13 +345,49 @@
                 <td>${c.urgency}</td>
                 <td>${c.status}</td>
 
+                <td>
+
+                    <button onclick="resolveComplaint(${index})">
+
+                        Resolve
+
+                    </button>
+
+                </td>
+
             </tr>
 
             `;
-        }
+
+        });
+
+    }
+
+
+    function resolveComplaint(index){
+
+        complaints[index].status = "Resolved";
+
+        localStorage.setItem(
+            "complaints",
+            JSON.stringify(complaints)
+        );
+
+        displayComplaints();
+
+    }
+
+
+    function logout(){
+
+        localStorage.removeItem("studentName");
+
+        location.reload();
+
     }
 
 </script>
 
 </body>
 </html>
+                
